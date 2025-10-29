@@ -30,6 +30,7 @@ export class AuthController {
   }
 
   @Get('me')
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Request() req) {
     return this.authService.getCurrentUser(req.user.id);

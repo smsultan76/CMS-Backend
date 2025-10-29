@@ -23,7 +23,14 @@ async function bootstrap() {
   const config = new DocumentBuilder().setTitle('CMS Backend API')
           .setDescription('API documentation for the CMS backend')
           .setVersion('1.0')
-          .addBearerAuth()
+          .addBearerAuth({
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            name: 'JWT',
+            description: 'Enter JWT token',
+            in: 'header',
+          }, 'JWT-auth',)
           .build();
 
   const document = SwaggerModule.createDocument(app, config);
