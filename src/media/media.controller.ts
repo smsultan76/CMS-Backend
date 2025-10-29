@@ -9,7 +9,13 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBearerAuth } from '@nestjs/swagger';
+import { 
+  ApiTags, 
+  ApiOperation, 
+  ApiConsumes, 
+  ApiBearerAuth,
+  ApiBody 
+} from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { MediaService } from './media.service';
@@ -23,10 +29,23 @@ export class MediaController {
   constructor(private readonly mediaService: MediaService) {}
 
   @Post()
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   @ApiOperation({ summary: 'Upload a media file' })
   @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    description: 'File upload',
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+          description: 'Image file (JPG, JPEG, PNG, GIF, WebP) max 5MB',
+        },
+      },
+    },
+  })
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
@@ -74,6 +93,7 @@ export class MediaController {
   }
 
   @Get()
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get all media files' })
   async findAll(): Promise<MediaResponseDto[]> {
     const media = await this.mediaService.findAll();
@@ -87,6 +107,7 @@ export class MediaController {
   }
 
   @Get(':id')
+  @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get media file by ID' })
   async findOne(@Param('id') id: string): Promise<MediaResponseDto> {
     const media = await this.mediaService.findOne(id);
@@ -100,7 +121,7 @@ export class MediaController {
   }
 
   @Delete(':id')
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   @ApiOperation({ summary: 'Delete a media file' })
   async remove(@Param('id') id: string) {

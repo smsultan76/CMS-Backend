@@ -8,6 +8,7 @@ import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @ApiTags('pages')
+@ApiBearerAuth('JWT-auth')
 @Controller('pages')
 export class PagesController {
   constructor(private readonly pagesService: PagesService) {}
@@ -68,7 +69,7 @@ export class PagesController {
 
   @Patch(':id/publish')
   @ApiBearerAuth()
-  @Roles(UserRole.ADMIN, UserRole.EDITOR)
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Publish a page' })
   publish(@Param('id', ParseUUIDPipe) id: string) {
     return this.pagesService.publish(id);
@@ -76,7 +77,7 @@ export class PagesController {
 
   @Patch(':id/unpublish')
   @ApiBearerAuth()
-  @Roles(UserRole.ADMIN, UserRole.EDITOR)
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Unpublish a page' })
   unpublish(@Param('id', ParseUUIDPipe) id: string) {
     return this.pagesService.unpublish(id);

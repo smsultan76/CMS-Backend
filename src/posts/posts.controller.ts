@@ -8,6 +8,7 @@ import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @ApiTags('posts')
+@ApiBearerAuth('JWT-auth')
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
@@ -54,7 +55,7 @@ export class PostsController {
 
   @Patch(':id/publish')
   @ApiBearerAuth()
-  @Roles(UserRole.ADMIN, UserRole.EDITOR)
+  @Roles(UserRole.ADMIN)
   publish(@Param('id', ParseUUIDPipe) id: string) {
     return this.postsService.publish(id);
   }
