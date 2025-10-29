@@ -9,7 +9,8 @@ import {
   Query, 
   ParseUUIDPipe,
   HttpStatus,
-  HttpCode 
+  HttpCode, 
+  UseGuards
 } from '@nestjs/common';
 import { 
   ApiTags, 
@@ -25,6 +26,7 @@ import { CategoriesFilterDto } from './dto/categories-filter.dto';
 import { CategoryResponseDto } from './dto/category-response.dto';
 import { Roles } from '../common/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -32,8 +34,8 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
-  @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new category' })
   @ApiResponse({ status: 201, type: CategoryResponseDto })
   @ApiResponse({ status: 409, description: 'Category name or slug already exists' })
