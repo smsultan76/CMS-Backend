@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -38,24 +38,117 @@ export class PostsService {
       throw new ConflictException('Slug already exists');
     }
 
-    return this.prisma.post.create({
-      data: {
-        title,
-        slug,
-        content,
-        status: status || PostStatus.DRAFT,
-        categoryId,
-        authorId,
-        coverMediaId,
-      },
-      include: {
-        category: true,
-        author: {
-          select: { id: true, name: true, email: true }
+    // Validate categoryId if provided
+    if (categoryId) {
+      const category = await this.prisma.category.findUnique({
+        where: { id: categoryId },
+      });
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+    }
+
+    // Validate coverMediaId if provided
+    if (coverMediaId) {
+      const media = await this.prisma.media.findUnique({
+        where: { id: coverMediaId },
+      });
+      if (!media) {
+        throw new NotFoundException('Media not found');
+      }
+    }
+
+    try {
+      return await this.prisma.post.create({
+        data: {
+          title,
+          slug,
+          content,
+          status: status || PostStatus.DRAFT,
+          categoryId: categoryId || null,
+          authorId,
+          coverMediaId: coverMediaId || null,
         },
-        coverMedia: true,
-      },
+        include: {
+          category: true,
+          author: {
+            select: { id: true, name: true, email: true }
+          },
+          coverMedia: true,
+        },
+      });
+    } catch (error) {
+      // Catch any other Prisma errors
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid foreign key reference');
+      }
+      throw error;
+    }
+  }
+
+  async update(id: string, updatePostDto: UpdatePostDto) {
+    const post = await this.prisma.post.findFirst({
+      where: { id, deletedAt: null },
     });
+
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    const { title, slug, categoryId, coverMediaId } = updatePostDto;
+
+    // Validate categoryId if provided
+    if (categoryId) {
+      const category = await this.prisma.category.findUnique({
+        where: { id: categoryId },
+      });
+      if (!category) {
+        throw new NotFoundException('Category not found');
+      }
+    }
+
+    // Validate coverMediaId if provided
+    if (coverMediaId) {
+      const media = await this.prisma.media.findUnique({
+        where: { id: coverMediaId },
+      });
+      if (!media) {
+        throw new NotFoundException('Media not found');
+      }
+    }
+
+    if (slug && slug !== post.slug) {
+      if (await this.prisma.post.findUnique({ where: { slug } })) {
+        throw new ConflictException('Slug already exists');
+      }
+    }
+
+    let finalSlug = slug;
+    if (title && title !== post.title && !slug) {
+      finalSlug = await this.generateUniqueSlug(title);
+    }
+
+    try {
+      return await this.prisma.post.update({
+        where: { id },
+        data: {
+          ...updatePostDto,
+          ...(finalSlug && { slug: finalSlug }),
+        },
+        include: {
+          category: true,
+          author: {
+            select: { id: true, name: true, email: true }
+          },
+          coverMedia: true,
+        },
+      });
+    } catch (error) {
+      if (error.code === 'P2003') {
+        throw new BadRequestException('Invalid foreign key reference');
+      }
+      throw error;
+    }
   }
 
   async findAll(page: number = 1, limit: number = 10) {
@@ -121,43 +214,43 @@ export class PostsService {
     return post;
   }
 
-  async update(id: string, updatePostDto: UpdatePostDto) {
-    const post = await this.prisma.post.findFirst({
-      where: { id, deletedAt: null },
-    });
+  // async update(id: string, updatePostDto: UpdatePostDto) {
+  //   const post = await this.prisma.post.findFirst({
+  //     where: { id, deletedAt: null },
+  //   });
 
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
+  //   if (!post) {
+  //     throw new NotFoundException('Post not found');
+  //   }
 
-    const { title, slug } = updatePostDto;
+  //   const { title, slug } = updatePostDto;
 
-    if (slug && slug !== post.slug) {
-      if (await this.prisma.post.findUnique({ where: { slug } })) {
-        throw new ConflictException('Slug already exists');
-      }
-    }
+  //   if (slug && slug !== post.slug) {
+  //     if (await this.prisma.post.findUnique({ where: { slug } })) {
+  //       throw new ConflictException('Slug already exists');
+  //     }
+  //   }
 
-    let finalSlug = slug;
-    if (title && title !== post.title && !slug) {
-      finalSlug = await this.generateUniqueSlug(title);
-    }
+  //   let finalSlug = slug;
+  //   if (title && title !== post.title && !slug) {
+  //     finalSlug = await this.generateUniqueSlug(title);
+  //   }
 
-    return this.prisma.post.update({
-      where: { id },
-      data: {
-        ...updatePostDto,
-        ...(finalSlug && { slug: finalSlug }),
-      },
-      include: {
-        category: true,
-        author: {
-          select: { id: true, name: true, email: true }
-        },
-        coverMedia: true,
-      },
-    });
-  }
+  //   return this.prisma.post.update({
+  //     where: { id },
+  //     data: {
+  //       ...updatePostDto,
+  //       ...(finalSlug && { slug: finalSlug }),
+  //     },
+  //     include: {
+  //       category: true,
+  //       author: {
+  //         select: { id: true, name: true, email: true }
+  //       },
+  //       coverMedia: true,
+  //     },
+  //   });
+  // }
 
   async remove(id: string) {
     const post = await this.prisma.post.findFirst({
