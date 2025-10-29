@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,19 +5,6 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-
-enum UserRole {
-  ADMIN
-  EDITOR
-  VIEWER
-}
-
-enum PostStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
 }
 
 model User {
@@ -34,22 +15,20 @@ model User {
   role      UserRole @default(VIEWER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
-  posts Post[]
-  
+  posts     Post[]
+
   @@map("users")
 }
 
 model Category {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
-  slug      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
-  
-  posts Post[]
-  
+  posts     Post[]
+
   @@map("categories")
 }
 
@@ -66,11 +45,10 @@ model Post {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   deletedAt    DateTime?
-  
-  category   Category? @relation(fields: [categoryId], references: [id])
-  author     User      @relation(fields: [authorId], references: [id])
-  coverMedia Media?    @relation(fields: [coverMediaId], references: [id])
-  
+  author       User       @relation(fields: [authorId], references: [id])
+  category     Category?  @relation(fields: [categoryId], references: [id])
+  coverMedia   Media?     @relation(fields: [coverMediaId], references: [id])
+
   @@map("posts")
 }
 
@@ -82,7 +60,7 @@ model Page {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   @@map("pages")
 }
 
@@ -92,8 +70,19 @@ model Media {
   url       String
   mimeType  String
   createdAt DateTime @default(now())
-  
-  posts Post[]
-  
+  posts     Post[]
+
   @@map("media")
+}
+
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
