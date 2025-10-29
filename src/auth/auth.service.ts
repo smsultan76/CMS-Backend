@@ -5,6 +5,9 @@ import * as bcrypt from 'bcryptjs';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { RegisterDto } from './dto/register.dto';
+import { UsersService } from 'src/users/users.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +15,21 @@ export class AuthService {
     private prisma: PrismaService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private usersService: UsersService
   ) {}
+
+  async register(registerDto: RegisterDto):Promise<{
+    message: string;
+    user: Omit<User, 'password'>;
+  }> {
+    const user = await this.usersService.create(registerDto);
+    const { password, ...result } = user;
+    return {
+      message: 'User registered successfully',
+      user: result,
+    };
+  }
+
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.prisma.user.findUnique({

@@ -8,10 +8,12 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 import { PrismaService } from '../prisma/prisma.service';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { UsersModule } from 'src/users/users.module';
 
 @Module({
   imports: [
     PassportModule,
+    UsersModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
