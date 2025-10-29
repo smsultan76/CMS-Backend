@@ -30,9 +30,7 @@ export class AuthController {
   }
 
   @Get('me')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Get current user profile' })
-  @ApiResponse({ status: 200, description: 'Returns current user data' })
+  @UseGuards(JwtAuthGuard)
   async getProfile(@Request() req) {
     return this.authService.getCurrentUser(req.user.id);
   }
