@@ -15,13 +15,13 @@ export class AuthController {
 
 
   @Post('register')
+  @ApiOperation({ summary: 'User Registration' })
   register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
 
   @Public()
-  @UseGuards(LocalAuthGuard)
   @Post('login')
   @ApiOperation({ summary: 'User login' })
   @ApiResponse({ status: 200, type: AuthResponseDto })
