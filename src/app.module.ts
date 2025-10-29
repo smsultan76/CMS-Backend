@@ -7,13 +7,14 @@ import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { CategoriesModule } from './categories/categories.module';
 import { PostsModule } from './posts/posts.module';
+import { PagesModule } from './pages/pages.module';
 import configuration from './config/configuration';
 
 @Module({
   imports: [ConfigModule.forRoot({
     isGlobal: true,
     load: [configuration],
-  }), AuthModule, UsersModule, CategoriesModule, PostsModule],
+  }), AuthModule, UsersModule, CategoriesModule, PostsModule, PagesModule],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
