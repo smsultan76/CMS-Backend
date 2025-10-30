@@ -1,21 +1,6 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Param,
-  Delete,
-  UseInterceptors,
-  UploadedFile,
-  BadRequestException,
-} from '@nestjs/common';
+import { Controller, Get, Post, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiConsumes, 
-  ApiBearerAuth,
-  ApiBody 
-} from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { MediaService } from './media.service';
@@ -33,12 +18,9 @@ export class MediaController {
   @Roles(UserRole.ADMIN, UserRole.EDITOR)
   @ApiOperation({ summary: 'Upload a media file' })
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    description: 'File upload',
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
+  @ApiBody({ description: 'File upload',
+    schema: { type: 'object',
+      properties: { file: {
           type: 'string',
           format: 'binary',
           description: 'Image file (JPG, JPEG, PNG, GIF, WebP) max 5MB',
@@ -46,9 +28,7 @@ export class MediaController {
       },
     },
   })
-  @UseInterceptors(
-    FileInterceptor('file', {
-      storage: diskStorage({
+  @UseInterceptors( FileInterceptor('file', { storage: diskStorage({
         destination: './uploads',
         filename: (req, file, callback) => {
           const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -58,7 +38,6 @@ export class MediaController {
         },
       }),
       fileFilter: (req, file, callback) => {
-        // Allow only images
         if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
           return callback(
             new BadRequestException('Only image files are allowed'),
@@ -67,9 +46,7 @@ export class MediaController {
         }
         callback(null, true);
       },
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
-      },
+      limits: { fileSize: 5 * 1024 * 1024, },
     }),
   )
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
@@ -92,6 +69,9 @@ export class MediaController {
     };
   }
 
+
+
+
   @Get()
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get all media files' })
@@ -106,6 +86,10 @@ export class MediaController {
     }));
   }
 
+
+
+
+  
   @Get(':id')
   @ApiBearerAuth('JWT-auth')
   @ApiOperation({ summary: 'Get media file by ID' })
