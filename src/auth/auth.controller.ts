@@ -14,6 +14,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
 
+  @Public()
   @Post('register')
   @ApiOperation({ summary: 'User Registration' })
   register(@Body() registerDto: RegisterDto) {
