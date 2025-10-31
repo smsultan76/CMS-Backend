@@ -18,6 +18,10 @@ export class AuthService {
     private usersService: UsersService
   ) {}
 
+  async getAllUser(){
+    return await this.prisma.user.findMany();
+  }
+
   async register(registerDto: RegisterDto):Promise<{
     message: string;
     user: Omit<User, 'password'>;

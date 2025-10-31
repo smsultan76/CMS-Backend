@@ -13,6 +13,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Public()
+  @ApiOperation({ summary: 'Get All User' })
+  @Get('users')
+  async getUsers(){
+    return this.authService.getAllUser();
+  }
+
+  @Public()
   @Post('register')
   @ApiOperation({ summary: 'User Registration' })
   async register(@Body() registerDto: RegisterDto) {
