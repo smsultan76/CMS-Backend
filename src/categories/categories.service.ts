@@ -40,7 +40,6 @@ export class CategoriesService {
   async create(createCategoryDto: CreateCategoryDto) {
     const { name, slug: providedSlug } = createCategoryDto;
 
-    // Check if category with same name already exists
     const existingCategory = await this.prisma.category.findFirst({
       where: { 
         name: { equals: name, mode: 'insensitive' },
