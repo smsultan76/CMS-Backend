@@ -16,8 +16,8 @@ export class AuthController {
   @Public()
   @ApiOperation({ summary: 'Get All User' })
   @Get('users')
-  async getUsers(@Query() pagination: PaginationDto){
-    return this.authService.getAllUser(pagination);
+  async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 10 ){
+    return this.authService.getAllUser(page, limit);
   }
 
   @Public()

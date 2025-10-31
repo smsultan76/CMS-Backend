@@ -19,11 +19,22 @@ export class AuthService {
     private usersService: UsersService
   ) {}
 
-  async getAllUser(pagination: PaginationDto){
-    return await this.prisma.user.findMany({
-      skip: pagination.skip,
-      take: pagination.limit ?? 10
+  async getAllUser( page: number = 1, limit: number= 10 ){
+    const skip = ( page-1 )* limit;
+    const user = await this.prisma.user.findMany({
+      skip: skip,
+      take: limit ?? 10
     });
+
+    const users = [ this.prisma.user.findMany({
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' }
+    })
+  ];
+    const total = await this.prisma.user.count();
+    const meta = { page, limit, total,  }
+    return [ user, users, meta ];
   }
 
   async register(registerDto: RegisterDto):Promise<{
