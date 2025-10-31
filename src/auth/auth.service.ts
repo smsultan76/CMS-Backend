@@ -8,6 +8,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from '@prisma/client';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,8 +19,11 @@ export class AuthService {
     private usersService: UsersService
   ) {}
 
-  async getAllUser(){
-    return await this.prisma.user.findMany();
+  async getAllUser(pagination: PaginationDto){
+    return await this.prisma.user.findMany({
+      skip: pagination.skip,
+      take: pagination.limit ?? 10
+    });
   }
 
   async register(registerDto: RegisterDto):Promise<{

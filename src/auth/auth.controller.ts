@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
@@ -6,6 +6,7 @@ import { RegisterDto } from './dto/register.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Public } from '../common/decorators/public.decorator';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -15,8 +16,8 @@ export class AuthController {
   @Public()
   @ApiOperation({ summary: 'Get All User' })
   @Get('users')
-  async getUsers(){
-    return this.authService.getAllUser();
+  async getUsers(@Query() pagination: PaginationDto){
+    return this.authService.getAllUser(pagination);
   }
 
   @Public()
