@@ -12,9 +12,10 @@ import { Public } from '../common/decorators/public.decorator';
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
+  @Public()
   @Post('register')
   @ApiOperation({ summary: 'User Registration' })
-  register(@Body() registerDto: RegisterDto) {
+  async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
