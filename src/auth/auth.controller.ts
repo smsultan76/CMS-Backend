@@ -7,6 +7,8 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { Public } from '../common/decorators/public.decorator';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRole } from '@prisma/client';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -14,10 +16,12 @@ export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
   @Public()
+  @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Get All User' })
   @Get('users')
-  async getUsers(@Query('page') page: number = 1, @Query('limit') limit: number = 10 ){
-    return this.authService.getAllUser(page, limit);
+  async getUsers(@Query() pagination: PaginationDto ){
+    const { page, perPage } = pagination;
+    return this.authService.getAllUser(page, perPage);
   }
 
   @Public()
