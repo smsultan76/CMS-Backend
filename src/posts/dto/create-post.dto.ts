@@ -23,6 +23,7 @@ export class CreatePostDto {
   @IsEnum(PostStatus)
   status?: PostStatus;
 
+  
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
